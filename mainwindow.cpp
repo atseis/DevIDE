@@ -310,7 +310,6 @@ void MainWindow::on_action_visible_triggered()
     document->adjustSize();
     ui->codeTab->currentEditor()->update();
 }
-
 void MainWindow::on_action_unvisible_triggered()
 {
     document = ui->codeTab->currentEditor()->document();//将文本编辑区转为QTextDocument对象
@@ -322,18 +321,9 @@ void MainWindow::on_action_unvisible_triggered()
 
         if(str.contains("/*")){//如果包含“/*”(段落注释)字符串的话
 
-            int j=str.indexOf("/*");//返回‘/*’在str中的索引下标
-            if(str.contains("*/")){
-                int jj=str.indexOf("*/");//返回‘*/’在str中的索引下标
-                QString q=str.mid(0,j);
-                QString p=str.mid(jj);
-                if(q.contains('"')&&p.contains('"')){
-
-                }
-            }
             QString cur="/*";
             QString str_2=str.trimmed();//去掉字符串首尾空格
-            int m=str_2.indexOf(cur);//返回‘//’在str中的索引下标
+            int m=str_2.indexOf(cur);//返回在str中的索引下标
             QString ss=str.mid(0,m);//取代码部分
             if(m<1){
                 int j=i;
@@ -483,6 +473,88 @@ void MainWindow::on_action_unvisible_triggered()
         }
     }
     //调整与更新！！！！超重要！！！
+    document->adjustSize();
+    ui->codeTab->currentEditor()->update();
+}
+
+void MainWindow::on_action_wh_v_triggered(){//while循环的显示
+    for(int i=0;i<row_num;i++){//显示每一行
+        QTextBlock oTextBlock = document->findBlockByNumber(i);
+        oTextBlock.setVisible(true);
+    }
+    document->adjustSize();
+    ui->codeTab->currentEditor()->update();
+}
+void MainWindow::on_action_wh_unv_triggered(){//while循环的隐藏
+    document = ui->codeTab->currentEditor()->document();//将文本编辑区转为QTextDocument对象
+    row_num=document->lineCount();//获取行数
+
+    int zuo=0;
+    int you=0;
+    int a[10000];
+    int count=0;
+    int flag=0;//用来判断是不是while循环
+    int ff=0;//用来判断是不是第一个括号
+
+    for(int i=0;i<row_num;i++){
+        QString str = document->findBlockByLineNumber(i).text(); //获取第i行的内容
+
+        if(str.contains("while")&&(!str.contains('"'))&&(!str.contains("//"))){//如果包含while的话
+            flag=1;
+            if(str.contains('{')){
+                zuo++;
+                ff=1;
+            }
+        }
+        else{
+            if(flag==1){
+                if(str.contains('{')){
+                    zuo++;
+                }
+                if(str.contains('}')){
+                    you++;
+                }
+                if(zuo>you){
+                    if(zuo==1&&ff==0){//第一个括号不能隐藏
+                        ff=1;
+                    }
+                    else{
+                        a[count]=i;
+                        count++;
+                    }
+                }
+                if(zuo==you){
+                    zuo=0;
+                    you=0;
+                    flag=0;
+                    ff=0;
+                    int jj=i+1;
+                    if(jj<row_num){
+                        while(jj<row_num){
+                            QString str = document->findBlockByLineNumber(jj).text(); //获取第i行的内容
+                            if(str.contains("while")&&!str.contains('"')&&(!str.contains("//"))){
+                                i=jj-1;
+                                flag=1;
+                                break;
+                            }
+                            else{
+                                jj++;
+                            }
+                        }
+                        if(jj>=row_num){
+                            i=row_num-1;
+                            break;
+                        }
+                    }
+                }
+            }
+
+        }
+    }
+    for(int i=0;i<count;i++){
+        QTextBlock oTextBlock = document->findBlockByNumber(a[i]);
+        oTextBlock.setVisible(false);
+    }
     document->adjustSize();
     ui->codeTab->currentEditor()->update();
 }

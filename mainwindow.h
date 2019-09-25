@@ -60,6 +60,9 @@ private slots:
     void on_action_visible_triggered();//注释的显示
     void on_action_unvisible_triggered();//注释的隐藏
 
+    void on_action_wh_v_triggered();//注释的显示
+    void on_action_wh_unv_triggered();//注释的隐藏
+
 
     void on_treeView_doubleClicked(const QModelIndex &index);
 
